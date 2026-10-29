@@ -1,60 +1,27 @@
-import aiohttp
-from maxbot.types import Message
-from config import TEXT_SUBSCRIBE, TEXT_WELCOME, CHANNEL_ID, MAX_BOT_TOKEN
-from keyboards import subscribe_kb, main_menu_kb
+import os
+import certifi
 
+os.environ['SSL_CERT_FILE'] = certifi.where()
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+import asyncio
+from maxbot.bot import Bot
+from maxbot.dispatcher import Dispatcher
 
-async def is_user_subscribed(user_id: int) -> bool:
-    """
-    Проверяет, подписан ли пользователь на канал.
-    Возвращает True, если подписан, и False, если нет.
-    """
-    url = f"https://platform-api2.max.ru/chats/{CHANNEL_ID}/members"
-    headers = {
-        "Authorization": MAX_BOT_TOKEN
-    }
-    params = {
-        "user_ids": user_id
-    }
+from handlers import start, menu   # support не подключаем — его логика уже в menu.py
 
-    try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, headers=headers, params=params, ssl=False) as resp:
-                if resp.status != 200:
-                    print(f"Ошибка API проверки подписки: {resp.status}, {await resp.text()}")
-                    return False
+BOT_TOKEN = os.getenv("MAX_BOT_TOKEN") or os.getenv("MAX_TOKEN") or os.getenv("BOT_TOKEN")
 
-                data = await resp.json()
-                members = data.get("members", [])
+print(f"TOKEN: {BOT_TOKEN[:10] if BOT_TOKEN else 'НЕ НАЙДЕН'}...")
 
-                # Если массив members не пустой — пользователь подписан
-                return len(members) > 0
-    except Exception as e:
-        print(f"Ошибка при проверке подписки: {e}")
-        return False
+if not BOT_TOKEN:
+    raise SystemExit("❌ Токен не найден. Проверьте переменные окружения MAX_BOT_TOKEN / MAX_TOKEN / BOT_TOKEN")
 
+bot = Bot(BOT_TOKEN)
+dp = Dispatcher(bot)
 
-def register(dp, bot):
+# Регистрируем обработчики
+start.register(dp, bot)
+menu.register(dp, bot)
 
-    @dp.bot_started
-    async def on_bot_started(update):
-        """Срабатывает при нажатии кнопки 'Начать' в MAX"""
-        user_id = update['user']['user_id']
-        print(f"BOT_STARTED: user_id={user_id}")
-        await bot.send_message(
-            user_id=user_id,
-            text=TEXT_SUBSCRIBE,
-            reply_markup=subscribe_kb,
-            format="markdown"
-        )
-
-    @dp.message()
-    async def on_message(message: Message):
-        """Срабатывает на любое текстовое сообщение"""
-        print(f"MESSAGE: text={getattr(message, 'text', None)} sender={message.sender.id}")
-        await bot.send_message(
-            user_id=message.sender.id,
-            text=TEXT_SUBSCRIBE,
-            reply_markup=subscribe_kb,
-            format="markdown"
-        )
+if __name__ == "__main__":
+    asyncio.run(dp.run_polling())
