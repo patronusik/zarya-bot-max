@@ -1,10 +1,13 @@
 from config import (
     TEXT_WELCOME, TEXT_ABOUT, TEXT_ADDRESSES, TEXT_PAID_SERVICES,
-    TEXT_SUPPORT_MENU, SUPPORT_DATA, TEXT_CONTACTS, SITE_URL
+    TEXT_SUPPORT_MENU, SUPPORT_DATA, TEXT_CONTACTS, SITE_URL,
+    TEXT_CHAMP_MENU, TEXT_YOUTH_MENU, CHAMP_SCHEDULE, YOUTH_SCHEDULE
 )
 from keyboards import (
     main_menu_kb, back_to_menu_kb, subscribe_kb,
-    support_menu_kb, back_to_support_kb
+    support_menu_kb, back_to_support_kb,
+    championship_menu_kb, youth_menu_kb,
+    back_to_champ_kb, back_to_youth_kb
 )
 from maxbot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from handlers.start import is_user_subscribed
@@ -69,25 +72,52 @@ def register(dp, bot):
                                    reply_markup=back_to_menu_kb, format="markdown")
 
         # --- FAQ ---
-        elif payload == "support_menu":          
+        elif payload == "support_menu":
             await bot.send_message(
                 user_id=user_id,
                 text=TEXT_SUPPORT_MENU,
-                reply_markup=support_menu_kb,     
+                reply_markup=support_menu_kb,
                 format="markdown"
             )
 
-        elif payload in SUPPORT_DATA:            
+        elif payload in SUPPORT_DATA:
             await bot.send_message(
                 user_id=user_id,
                 text=SUPPORT_DATA[payload],
-                reply_markup=back_to_support_kb,  
+                reply_markup=back_to_support_kb,
                 format="markdown"
             )
 
+        # --- ЧЕМПИОНАТ РОССИИ (суперлига) ---
+        elif payload == "champ_menu":
+            await bot.send_message(
+                user_id=user_id, text=TEXT_CHAMP_MENU,
+                reply_markup=championship_menu_kb, format="markdown"
+            )
+
+        elif payload in CHAMP_SCHEDULE:
+            await bot.send_message(
+                user_id=user_id, text=CHAMP_SCHEDULE[payload],
+                reply_markup=back_to_champ_kb, format="markdown"
+            )
+
+        # --- ПЕРВЕНСТВО РОССИИ (U22) ---
+        elif payload == "youth_menu":
+            await bot.send_message(
+                user_id=user_id, text=TEXT_YOUTH_MENU,
+                reply_markup=youth_menu_kb, format="markdown"
+            )
+
+        elif payload in YOUTH_SCHEDULE:
+            await bot.send_message(
+                user_id=user_id, text=YOUTH_SCHEDULE[payload],
+                reply_markup=back_to_youth_kb, format="markdown"
+            )
+
+        # --- НА ГЛАВНУЮ ---
         elif payload == "back_to_menu":
             await bot.send_message(user_id=user_id, text=TEXT_WELCOME,
                                    reply_markup=main_menu_kb, format="markdown")
 
         else:
-            print(f"UNHANDLED PAYLOAD: {payload}") 
+            print(f"UNHANDLED PAYLOAD: {payload}")
