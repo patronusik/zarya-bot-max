@@ -9,7 +9,7 @@ subscribe_kb = InlineKeyboardMarkup(inline_keyboard=[
 
 # --- ГЛАВНОЕ МЕНЮ ---
 main_menu_kb = InlineKeyboardMarkup(inline_keyboard=[
-    [InlineKeyboardButton(text="🤸‍♀️ Об учреждении", callback_data="about")],
+    [InlineKeyboardButton(text="🤾🏻‍♂️ Об учреждении", callback_data="about")],
     [InlineKeyboardButton(text="📍 Адрес учреждения", callback_data="addresses")],
     [InlineKeyboardButton(text="🏐 Чемпионат России по гандболу (суперлига) 2026/2027", callback_data="champ_menu")],
     [InlineKeyboardButton(text="🏐 Первенство России по гандболу (молодёжка U22) 2026/2027", callback_data="youth_menu")],
