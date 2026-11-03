@@ -1,12 +1,12 @@
 import aiohttp
 from maxbot.types import Message
-from config import TEXT_SUBSCRIBE, TEXT_WELCOME, CHANNEL_ID, MAX_BOT_TOKEN
+from config import TEXT_SUBSCRIBE, TEXT_NOT_SUBSCRIBED, TEXT_WELCOME, CHANNEL_ID, MAX_BOT_TOKEN
 from keyboards import subscribe_kb, main_menu_kb
 
 
 async def is_user_subscribed(user_id: int) -> bool:
     """
-    Проверяет, подписан ли пользователь на канал.
+    Проверяет, подписан ли пользователь на сообщество.
     Возвращает True, если подписан, и False, если нет.
     """
     url = f"https://platform-api2.max.ru/chats/{CHANNEL_ID}/members"
