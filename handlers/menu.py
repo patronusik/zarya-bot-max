@@ -1,15 +1,17 @@
 from config import (
-    TEXT_WELCOME, TEXT_ABOUT, TEXT_ADDRESSES, TEXT_PAID_SERVICES,
-    TEXT_SUPPORT_MENU, SUPPORT_DATA, TEXT_CONTACTS, SITE_URL,
-    TEXT_CHAMP_MENU, TEXT_YOUTH_MENU, CHAMP_SCHEDULE, YOUTH_SCHEDULE
+    TEXT_WELCOME, TEXT_NOT_SUBSCRIBED,
+    TEXT_HISTORY, TEXT_ADDRESSES, TEXT_PAID_SERVICES,
+    TEXT_FAQ_MENU, TEXT_FAQ_KIDS, TEXT_CONTACTS,
+    TEXT_CHAMP_MENU, CHAMP_SCHEDULE,
+    TEXT_YOUTH_MENU, YOUTH_SCHEDULE,
 )
 from keyboards import (
     main_menu_kb, back_to_menu_kb, subscribe_kb,
-    support_menu_kb, back_to_support_kb,
-    championship_menu_kb, youth_menu_kb,
-    back_to_champ_kb, back_to_youth_kb
+    faq_kb, back_to_faq_kb,
+    paid_services_kb,
+    championship_menu_kb, back_to_champ_kb,
+    youth_menu_kb, back_to_youth_kb,
 )
-from maxbot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from handlers.start import is_user_subscribed
 
 
@@ -31,6 +33,7 @@ def register(dp, bot):
 
         payload = cb.payload
 
+        # --- ПОДПИСКА ---
         if payload == "check_sub":
             subscribed = await is_user_subscribed(user_id)
             if subscribed:
@@ -43,81 +46,73 @@ def register(dp, bot):
             else:
                 await bot.send_message(
                     user_id=user_id,
-                    text="❌ Ты ещё не подписался на канал. Подпишись и нажми кнопку «Я подписался» ещё раз.",
+                    text=TEXT_NOT_SUBSCRIBED,
                     reply_markup=subscribe_kb
                 )
+            return
 
-        elif payload == "about":
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="🌐 Перейти на сайт", url=SITE_URL)],
-                [InlineKeyboardButton(text="🏠 На главную", callback_data="back_to_menu")],
-            ])
-            await bot.send_message(user_id=user_id, text=TEXT_ABOUT,
-                                   reply_markup=kb, format="markdown")
+        # --- НА ГЛАВНУЮ (без проверки подписки) ---
+        if payload == "back_to_menu":
+            await bot.send_message(user_id=user_id, text=TEXT_WELCOME,
+                                   reply_markup=main_menu_kb, format="markdown")
+            return
 
+        # --- ДЛЯ ВСЕХ ОСТАЛЬНЫХ ДЕЙСТВИЙ — ПРОВЕРКА ПОДПИСКИ ---
+        subscribed = await is_user_subscribed(user_id)
+        if not subscribed:
+            await bot.send_message(
+                user_id=user_id,
+                text=TEXT_NOT_SUBSCRIBED,
+                reply_markup=subscribe_kb
+            )
+            return
+
+        # --- ИСТОРИЯ КЛУБА ---
+        if payload == "history":
+            await bot.send_message(user_id=user_id, text=TEXT_HISTORY,
+                                   reply_markup=back_to_menu_kb, format="markdown")
+
+        # --- АДРЕСА ---
         elif payload == "addresses":
             await bot.send_message(user_id=user_id, text=TEXT_ADDRESSES,
                                    reply_markup=back_to_menu_kb, format="markdown")
 
+        # --- ПЛАТНЫЕ УСЛУГИ ---
         elif payload == "paid_services":
-            kb = InlineKeyboardMarkup(inline_keyboard=[
-                [InlineKeyboardButton(text="🌐 Перейти на сайт", url=SITE_URL)],
-                [InlineKeyboardButton(text="🏠 На главную", callback_data="back_to_menu")],
-            ])
             await bot.send_message(user_id=user_id, text=TEXT_PAID_SERVICES,
-                                   reply_markup=kb, format="markdown")
+                                   reply_markup=paid_services_kb, format="markdown")
 
+        # --- FAQ ---
+        elif payload == "faq_menu":
+            await bot.send_message(user_id=user_id, text=TEXT_FAQ_MENU,
+                                   reply_markup=faq_kb, format="markdown")
+
+        elif payload == "faq_kids":
+            await bot.send_message(user_id=user_id, text=TEXT_FAQ_KIDS,
+                                   reply_markup=back_to_faq_kb, format="markdown")
+
+        # --- СПРАВОЧНАЯ ИНФОРМАЦИЯ ---
         elif payload == "contacts":
             await bot.send_message(user_id=user_id, text=TEXT_CONTACTS,
                                    reply_markup=back_to_menu_kb, format="markdown")
 
-        # --- FAQ ---
-        elif payload == "support_menu":
-            await bot.send_message(
-                user_id=user_id,
-                text=TEXT_SUPPORT_MENU,
-                reply_markup=support_menu_kb,
-                format="markdown"
-            )
-
-        elif payload in SUPPORT_DATA:
-            await bot.send_message(
-                user_id=user_id,
-                text=SUPPORT_DATA[payload],
-                reply_markup=back_to_support_kb,
-                format="markdown"
-            )
-
         # --- ЧЕМПИОНАТ РОССИИ (суперлига) ---
         elif payload == "champ_menu":
-            await bot.send_message(
-                user_id=user_id, text=TEXT_CHAMP_MENU,
-                reply_markup=championship_menu_kb, format="markdown"
-            )
+            await bot.send_message(user_id=user_id, text=TEXT_CHAMP_MENU,
+                                   reply_markup=championship_menu_kb, format="markdown")
 
         elif payload in CHAMP_SCHEDULE:
-            await bot.send_message(
-                user_id=user_id, text=CHAMP_SCHEDULE[payload],
-                reply_markup=back_to_champ_kb, format="markdown"
-            )
+            await bot.send_message(user_id=user_id, text=CHAMP_SCHEDULE[payload],
+                                   reply_markup=back_to_champ_kb, format="markdown")
 
         # --- ПЕРВЕНСТВО РОССИИ (U22) ---
         elif payload == "youth_menu":
-            await bot.send_message(
-                user_id=user_id, text=TEXT_YOUTH_MENU,
-                reply_markup=youth_menu_kb, format="markdown"
-            )
+            await bot.send_message(user_id=user_id, text=TEXT_YOUTH_MENU,
+                                   reply_markup=youth_menu_kb, format="markdown")
 
         elif payload in YOUTH_SCHEDULE:
-            await bot.send_message(
-                user_id=user_id, text=YOUTH_SCHEDULE[payload],
-                reply_markup=back_to_youth_kb, format="markdown"
-            )
-
-        # --- НА ГЛАВНУЮ ---
-        elif payload == "back_to_menu":
-            await bot.send_message(user_id=user_id, text=TEXT_WELCOME,
-                                   reply_markup=main_menu_kb, format="markdown")
+            await bot.send_message(user_id=user_id, text=YOUTH_SCHEDULE[payload],
+                                   reply_markup=back_to_youth_kb, format="markdown")
 
         else:
             print(f"UNHANDLED PAYLOAD: {payload}")
