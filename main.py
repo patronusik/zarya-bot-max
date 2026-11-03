@@ -3,11 +3,12 @@ import certifi
 
 os.environ['SSL_CERT_FILE'] = certifi.where()
 os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
+
 import asyncio
 from maxbot.bot import Bot
 from maxbot.dispatcher import Dispatcher
 
-from handlers import start, menu   # support не подключаем — его логика уже в menu.py
+from handlers import start, menu
 
 BOT_TOKEN = os.getenv("MAX_BOT_TOKEN") or os.getenv("MAX_TOKEN") or os.getenv("BOT_TOKEN")
 
@@ -19,7 +20,6 @@ if not BOT_TOKEN:
 bot = Bot(BOT_TOKEN)
 dp = Dispatcher(bot)
 
-# Регистрируем обработчики
 start.register(dp, bot)
 menu.register(dp, bot)
 
