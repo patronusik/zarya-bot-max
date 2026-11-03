@@ -17,7 +17,7 @@ main_menu_kb = InlineKeyboardMarkup(inline_keyboard=[
     [InlineKeyboardButton(text="🏆 Первенство России (молодёжка U22)", callback_data="youth_menu")],
     [InlineKeyboardButton(text="💳 Платные услуги", callback_data="paid_services")],
     [InlineKeyboardButton(text="❓ Часто задаваемые вопросы", callback_data="faq_menu")],
-    [InlineKeyboardButton(text="📞 Справочная информация", callback_data="contacts")],
+    [InlineKeyboardButton(text="📞 Контактная информация", callback_data="contacts")],
     [InlineKeyboardButton(text="🌐 Официальный сайт", url=SITE_URL)],
     [InlineKeyboardButton(text="🟦 Мы есть в ВКонтакте", url=VK_URL)],
     [InlineKeyboardButton(text="💬 Остались вопросы? Напишите нам", url=FEEDBACK_URL)],
